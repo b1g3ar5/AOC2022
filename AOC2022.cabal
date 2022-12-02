@@ -25,12 +25,39 @@ source-repository head
 
 library
   exposed-modules:
+      Day1
+      Day10
+      Day11
+      Day12
+      Day13
+      Day14
+      Day15
+      Day16
+      Day17
+      Day18
+      Day19
+      Day2
+      Day20
+      Day21
+      Day22
+      Day23
+      Day24
+      Day25
+      Day3
+      Day4
+      Day5
+      Day6
+      Day7
+      Day8
+      Day9
       Lib
       Utils
   other-modules:
       Paths_AOC2022
   hs-source-dirs:
       src
+  default-extensions:
+      GHC2021
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       MissingH
@@ -47,6 +74,8 @@ executable AOC2022-exe
       Paths_AOC2022
   hs-source-dirs:
       app
+  default-extensions:
+      GHC2021
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       AOC2022
@@ -65,6 +94,8 @@ test-suite AOC2022-test
       Paths_AOC2022
   hs-source-dirs:
       test
+  default-extensions:
+      GHC2021
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       AOC2022

@@ -27,6 +27,8 @@ dependencies:
 - containers
 - vector
 
+default-extensions: GHC2021
+
 ghc-options:
 - -Wall
 - -Wcompat

@@ -1,10 +1,7 @@
-resolver:
-  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/19/33.yaml
+resolver: nightly-2022-11-12
 
 packages:
 - .
-
-default-extensions: GHC2021
 
 # extra-deps:
 # - acme-missiles-0.3

@@ -1,105 +1,28 @@
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
+module Utils where
 
-module Utils (
-    above
-  , allCoords
-  , antiTurn
-  , below
-  , bimap
-  , chunksOf
-  , clockTurn
-  , Coord
-  , directions4
-  , directions8
-  , first
-  , getLines
-  , getRaw
-  , getTest
-  , getWords
-  , leftOf
-  , neighbours4
-  , neighbours8
-  , neighbourCoords4
-  , neighbourCoords8
-  , rightOf
-  , second
-  , span
-  , splitOn
-  , splitAt
-  , fromMaybe
-  , catMaybes
-  , sort
-  , sortOn
-  , transpose
-  , steadyState
-  , steadyState'
-  , swap
-  , (\\)
-  , toLower
-  , toUpper
-  , isAsciiLower
-  , isAsciiUpper
-  , intercalate 
-  , nub
-  , group
-  , M.Map(..)
-  , S.Set(..)
-  , Seq(..)
-  , IM.IntMap(..)
-  , V.Vector(..)
-  , guard
-  , fromJust
-  , isJust
-  , intersect
-  , isNothing
-  , delete
-  , replace
-  , trace
-  , Semigroup(..)
-  , Monoid(..)
-  , bool
-  , timeIt
-  , ord
-  , compare
-  , splitOn
-  , module Data.List
-  , module Data.Bifunctor
-  , module Data.Tuple
-  , module Data.Maybe
-  , module Control.Monad
-  , module Data.Function
-  --, module Data.Set
-  --, module Data.Vector
-  --, module Data.Map.Strict
-  , module Data.Sequence
-  , trace
-)
-where
-
-
-import qualified Data.Set as S
-import qualified Data.Vector as V
-import qualified Data.Map.Strict as M
-import qualified Data.IntMap.Strict as IM
-import Data.Sequence (Seq(..), (><), (|>), (<|))
-import Data.List ( foldl', transpose, (\\), delete, group, intercalate, intersect, nub, sort, sortOn )
-import Data.List.Split (chunksOf, splitOn)
-import Data.List.Utils (replace)
-import Data.Bifunctor (Bifunctor(bimap, first, second))
-import Data.Tuple (swap)
-import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
-import Data.Char (isAsciiLower, isAsciiUpper, toLower, toUpper, ord)
-import Control.Monad (guard)
-import Control.Monad.ST (runST, ST(..))
-import System.TimeIt ( timeIt )
-import Data.Semigroup (Semigroup(..))
-import Data.Monoid (Monoid(..))
-import Debug.Trace (trace)
-import Data.Bool (bool)
-import Data.Ord
-import Data.Function
+--import qualified Data.Set as S
+--import qualified Data.Vector as V
+--import qualified Data.Map.Strict as M
+--import qualified Data.IntMap.Strict as IM
+--import Data.Sequence (Seq(..), (><), (|>), (<|))
+--import Data.List ( foldl', transpose, (\\), delete, group, intercalate, intersect, nub, sort, sortOn )
+--import Data.List.Split (chunksOf, splitOn)
+--import Data.List.Utils (replace)
+--import Data.Bifunctor (Bifunctor(bimap, first, second))
+--import Data.Tuple (swap)
+--import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
+--import Data.Char (isAsciiLower, isAsciiUpper, toLower, toUpper, ord)
+--import Control.Monad (guard)
+--import Control.Monad.ST (runST, ST(..))
+--import System.TimeIt ( timeIt )
+--import Data.Semigroup (Semigroup(..))
+--import Data.Monoid (Monoid(..))
+--import Debug.Trace (trace)
+--import Data.Bool (bool)
+--import Data.Ord
+--import Data.Function
 
 --- Things to add
 
@@ -134,6 +57,16 @@ getLines = getF lines
 
 getTest :: Int -> IO [String]
 getTest = getT lines
+
+
+-- splits a list on an item and deletes the item
+splitOn  :: Eq a => a -> [a] -> [[a]]
+splitOn s = go [] []
+  where
+    go acc next [] = acc ++ [next]
+    go acc next (l:ls)
+      | l == s = go (acc ++ [next]) [] ls
+      | otherwise = go acc (next ++ [l]) ls
 
 
 ------------------ VARIOUS UTILITY FUNCTIONS --------------------
