@@ -17,7 +17,7 @@ priority1 s = score c
     (c1, c2) = splitAt (n `div` 2) s
     c = head $ filter (`elem` c1) c2
     
-    
+
 priority2 :: [String] -> Int
 priority2 [s1,s2,s3] = score $ head f2
   where
@@ -29,10 +29,8 @@ priority2 _ = error "!!"
 day3 :: IO ()
 day3 = do
   ss <- getLines 3
-  let ps = priority1 <$> ss
-      qs = priority2 <$> chunksOf 3 ss
 
-  putStrLn $ "Day3: part1: " ++ show (sum ps)
-  putStrLn $ "Day3: part1: " ++ show (sum qs)
+  putStrLn $ "Day3: part1: " ++ show (sum $ priority1 <$> ss)
+  putStrLn $ "Day3: part1: " ++ show (sum $ priority2 <$> chunksOf 3 ss)
 
   return ()
