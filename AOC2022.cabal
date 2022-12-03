@@ -50,6 +50,7 @@ library
       Day7
       Day8
       Day9
+      HeapIndexed
       Lib
       Utils
   other-modules:

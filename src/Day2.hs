@@ -3,9 +3,6 @@ module Day2(day2) where
 import Utils ( getLines )
 
 
-parseLine :: String -> (Char, Char)
-parseLine s = (s!!0, s!!2) 
-
 score1 :: (Char, Char) -> Int
 score1 ('A', 'X') = 4
 score1 ('B', 'X') = 1
@@ -17,6 +14,7 @@ score1 ('A', 'Z') = 3
 score1 ('B', 'Z') = 9
 score1 ('C', 'Z') = 6
 score1 _ = error "!"
+
 
 score2 :: (Char, Char) -> Int
 score2 ('A', 'Z') = 6 + 2
@@ -34,7 +32,7 @@ score2 _ = error "!"
 day2 :: IO ()
 day2 = do
   ss <- getLines 2
-  let games = parseLine <$> ss
+  let games = (\s -> (s!!0, s!!2)) <$> ss
 
   putStrLn $ "Day2: part1: " ++ show (sum $ score1 <$> games)
   putStrLn $ "Day2: part2: " ++ show (sum $ score2 <$> games)

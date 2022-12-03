@@ -18,6 +18,7 @@ someFunc :: IO ()
 someFunc = do 
   day1
   day2
+  day3
 
 
 makeFiles :: IO ()
