@@ -2,6 +2,9 @@
 
 module Utils where
 
+import Text.ParserCombinators.ReadP
+import Data.Char
+
 --import qualified Data.Set as S
 --import qualified Data.Vector as V
 --import qualified Data.Map.Strict as M
@@ -67,6 +70,26 @@ splitOn s = go [] []
     go acc next (l:ls)
       | l == s = go (acc ++ [next]) [] ls
       | otherwise = go acc (next ++ [l]) ls
+
+
+parseS :: ReadP a -> ReadS a
+parseS = readP_to_S
+
+
+parseWith :: ReadP a -> String -> a
+parseWith p s = case [ a | (a,t) <- parseS p s, all isSpace t] of
+                  [a] -> a
+                  [] -> error "No parse"
+                  _ -> error "Ambiguous parse"
+
+
+digit :: ReadP Char
+digit = satisfy (`elem` "0123456789")
+
+pInt :: ReadP Int
+pInt = do
+  n <- many1 digit
+  return $ read n
 
 
 ------------------ VARIOUS UTILITY FUNCTIONS --------------------

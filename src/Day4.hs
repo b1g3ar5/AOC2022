@@ -1,39 +1,37 @@
 module Day4(day4) where
 
---import qualified Data.Set as S
---import qualified Data.Vector as V
---import qualified Data.Map.Strict as M
---import qualified Data.IntMap.Strict as IM
---import Data.Sequence (Seq(..), (><), (|>), (<|))
---import Data.List ( foldl', transpose, (\\), delete, group, intercalate, intersect, nub, sort, sortOn )
---import Data.List.Split (chunksOf, splitOn)
---import Data.List.Utils (replace)
---import Data.Bifunctor (Bifunctor(bimap, first, second))
---import Data.Tuple (swap)
---import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
---import Data.Char (isAsciiLower, isAsciiUpper, toLower, toUpper, ord)
---import Control.Monad (guard)
---import Control.Monad.ST (runST, ST(..))
---import System.TimeIt ( timeIt )
---import Data.Semigroup (Semigroup(..))
---import Data.Monoid (Monoid(..))
---import Debug.Trace (trace)
---import Data.Bool (bool)
---import Data.Ord
---import Data.Function
-import Utils
+import Utils ( getLines, parseWith, pInt ) 
+import Text.ParserCombinators.ReadP ( ReadP, get )
 
 
-parse :: String -> Int
-parse = read
+-- A proper parser today - practice for later
+parse :: ReadP ((Int, Int),(Int,Int))
+parse = do
+  n1 <- pInt
+  _ <- get -- the '-'
+  n2 <- pInt
+  _ <- get -- the ','
+  m1 <- pInt
+  _ <- get -- another '-' 
+  m2 <- pInt
+  return ((n1, n2),(m1, m2))
+
+
+contained :: Ord a => ((a,a),(a,a)) -> Bool
+contained ((m1, m2), (n1,n2)) = (n1>=m1 && n2<=m2) || (m1>=n1 && m2<=n2)
+
+
+-- No overlap is easier to define because the numbers (in a tupple) are ordered
+overlap :: Ord a => ((a, a), (a, a)) -> Bool
+overlap ((m1, m2), (n1,n2)) = not (m1>n2 || m2<n1) 
 
 
 day4 :: IO ()
 day4 = do
   ss <- getLines 4
-  let g = parse <$> ss
+  let ps = parseWith parse <$> ss
 
-  putStrLn $ "Day4: part1: " ++ show g
-  putStrLn $ "Day4: part2: " ++ show ""
-
+  putStrLn $ "Day4: part1: " ++ show (length $ filter id $ contained <$> ps)
+  putStrLn $ "Day4: part2: " ++ show (length $ filter id $ overlap <$> ps)
+  
   return ()

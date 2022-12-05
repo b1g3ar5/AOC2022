@@ -26,6 +26,7 @@ dependencies:
 - split
 - containers
 - vector
+- megaparsec
 
 default-extensions: GHC2021
 
