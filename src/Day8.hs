@@ -2,38 +2,45 @@ module Day8(day8) where
 
 import qualified Data.Map.Strict as M
 import Utils ( Coord, getLines, lt, rt, up, dn )
-import Data.List ( nub, transpose )
+import Data.List ( nub )
+import Data.List.NonEmpty (NonEmpty(..))
+import qualified Data.List.NonEmpty as NE
 
 
 parse :: [String] -> [[(Coord, Int)]]
 parse css = (\(y, cs) -> (\(x, c) -> ((x,y),read [c])) <$> zip [0..] cs) <$> zip [0..] css
 
 
-countTrees :: [(Coord, Int)] -> [Coord]
-countTrees [] = error "There aren't any trees"
-countTrees (x:xs) = go [fst x] (snd x) xs
+maxCoord :: Int
+maxCoord = 99
+inBounds :: Coord -> Bool
+inBounds (x,y) = (x<maxCoord) && (y<maxCoord) && (x>=0) && (y>=0)
+
+
+countTrees :: NonEmpty (Coord, Int) -> [Coord]
+countTrees (x:|xs) = go [fst x] (snd x) $ NE.fromList xs
   where
-    go :: [Coord] -> Int -> [(Coord, Int)] -> [Coord]
-    go _ _ [] = error "Shouldn't be here"
-    go cs mx [(c,t)]
+    go :: [Coord] -> Int -> NonEmpty (Coord, Int) -> [Coord]
+    go cs mx ((c,t):| [])
       | t>mx = c:cs
       | otherwise = cs
-    go cs mx ((c,t):ts)
-      | t>mx = go (c:cs) t ts
-      | otherwise = go cs mx ts
+    go cs mx ((c,t):|ts)
+      | t>mx = go (c:cs) t $ NE.fromList ts
+      | otherwise = go cs mx $ NE.fromList ts
 
 
 countAll :: [[(Coord, Int)]] -> Int
 countAll xss = length $ nub $ a++b++c++d
   where
-    a = concatMap countTrees xss
-    b = concatMap countTrees $ reverse <$> xss
-    c = concatMap countTrees $ transpose xss
-    d = concatMap countTrees $ reverse <$> transpose xss
+    nexss = NE.fromList $ NE.fromList <$> xss
+    a = concatMap countTrees nexss
+    b = concatMap countTrees $ NE.reverse <$> nexss
+    c = concatMap countTrees $ NE.transpose nexss
+    d = concatMap countTrees $ NE.reverse <$> NE.transpose nexss
 
 
-scenicScore :: Coord -> M.Map Coord Int -> Int
-scenicScore t mp = go 0 0 up t * go 0 0 dn t * go 0 0 lt t * go 0 0 rt t
+scenicDistance :: Coord -> M.Map Coord Int -> Int
+scenicDistance t mp = go 0 0 up t * go 0 0 dn t * go 0 0 lt t * go 0 0 rt t
   where
     treeHgt = mp M.! t
     go distance hgt move lst
@@ -46,10 +53,6 @@ scenicScore t mp = go 0 0 up t * go 0 0 dn t * go 0 0 lt t * go 0 0 rt t
         nxtHgt = mp M.! nxt
 
 
-maxCoord :: Int
-maxCoord = 98
-inBounds :: Coord -> Bool
-inBounds (x,y) = (x<=maxCoord) && (y<=maxCoord) && (x>=0) && (y>=0)
 
 day8 :: IO ()
 day8 = do
@@ -58,6 +61,6 @@ day8 = do
       mp = M.fromList $ concat g
 
   putStrLn $ "Day8: part1: " ++ show (countAll g)
-  putStrLn $ "Day8: part1: " ++ show (maximum $ M.mapWithKey (\k _ -> scenicScore k mp) mp)
+  putStrLn $ "Day8: part1: " ++ show (maximum $ M.mapWithKey (\k _ -> scenicDistance k mp) mp)
 
   return ()
