@@ -176,3 +176,8 @@ above x = x + (0,-1)
 below x = x + (0,1)
 
 
+lt, rt, up, dn :: Coord
+lt = (-1,0)
+rt = (1,0)
+up = (0,-1)
+dn = (0,1)

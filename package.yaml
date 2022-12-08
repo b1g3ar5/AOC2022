@@ -26,7 +26,8 @@ dependencies:
 - split
 - containers
 - vector
-- megaparsec
+#- megaparsec
+- recursion-schemes
 
 default-extensions: GHC2021
 
