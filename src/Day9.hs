@@ -1,39 +1,67 @@
 module Day9(day9) where
 
---import qualified Data.Set as S
---import qualified Data.Vector as V
---import qualified Data.Map.Strict as M
---import qualified Data.IntMap.Strict as IM
---import Data.Sequence (Seq(..), (><), (|>), (<|))
---import Data.List ( foldl', transpose, (\\), delete, group, intercalate, intersect, nub, sort, sortOn )
---import Data.List.Split (chunksOf, splitOn)
---import Data.List.Utils (replace)
---import Data.Bifunctor (Bifunctor(bimap, first, second))
---import Data.Tuple (swap)
---import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
---import Data.Char (isAsciiLower, isAsciiUpper, toLower, toUpper, ord)
---import Control.Monad (guard)
---import Control.Monad.ST (runST, ST(..))
---import System.TimeIt ( timeIt )
---import Data.Semigroup (Semigroup(..))
---import Data.Monoid (Monoid(..))
---import Debug.Trace (trace)
---import Data.Bool (bool)
---import Data.Ord
---import Data.Function
-import Utils
+import Data.Sequence (Seq(..), singleton, viewr, ViewR(..))
+import qualified Data.Sequence as S
+import Data.Set (Set)
+import qualified Data.Set as Set
+import Utils ( getLines, rt, lt, dn, up, Coord )
 
 
-parse :: String -> Int
-parse = read
+data Dir = U | D | L | R deriving (Show, Eq)
+
+parseDir :: Char -> Coord
+parseDir 'U' = up
+parseDir 'D' = dn
+parseDir 'L' = lt
+parseDir 'R' = rt
+parseDir c = error $ "Parse error: " ++ [c]
+
+
+parse :: String -> (Coord, Int)
+parse s = (parseDir $ s!!0, read $ tail s)
+
+
+-- Parameters are (path of the tail, the snake) and (move, distance)
+makeMove :: (Set Coord, Seq Coord) -> (Coord, Int) -> (Set Coord, Seq Coord)
+makeMove (path, start) (mv, dist) = go path dist start
+  where
+    go :: Set Coord -> Int -> Seq Coord -> (Set Coord, Seq Coord)
+    go acc 0 snake = (acc, snake)
+    go acc n snake = go (newTail `Set.insert` acc) (n-1) newSnake
+      where
+        newSnake = moveSnake snake mv
+        newTail :: Coord
+        newTail = case viewr newSnake of
+                    S.EmptyR -> error "The snake has no tail"
+                    (_ :> x) -> x
+        
+
+-- Parameters are the snake and the move required
+moveSnake :: Seq Coord -> Coord -> Seq Coord
+moveSnake Empty _ = error "There's no snake"
+moveSnake (h:<|ts) mv = go (singleton $ h+mv) ts
+  where
+    go :: Seq Coord -> Seq Coord -> Seq Coord
+    go az@(_ :|> z) (x :<| Empty) = az :|> moveCoord z x
+    go az@(_ :|> z) (x :<| tts) = go (az :|> moveCoord z x) tts
+    go _ _ = error "Error in moveSnake"
+
+
+moveCoord :: Coord -> Coord -> Coord
+moveCoord (fx, fy) back@(bx, by)
+  | (abs (fx-bx) < 2) && (abs (fy-by) < 2) = back -- touching, don't move
+  | otherwise = (newCoord fx bx, newCoord fy by)
+  where
+    newCoord fc bc
+      | abs (fc-bc) == 2 = (fc+bc) `div` 2 -- average if 2 away
+      | otherwise = fc -- otherwise take row/col as front
 
 
 day9 :: IO ()
 day9 = do
   ss <- getLines 9
-  let g = parse <$> ss
+  let moves = parse <$> ss
 
-  putStrLn $ "Day9: part1: " ++ show g
-  putStrLn $ "Day9: part2: " ++ show ""
-
+  putStrLn $ "Day9: part2: " ++ show (length $ fst $ foldl makeMove (Set.empty, S.replicate 2 (0,0)) moves)
+  putStrLn $ "Day9: part2: " ++ show (length $ fst $ foldl makeMove (Set.empty, S.replicate 10 (0,0)) moves)
   return ()

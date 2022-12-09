@@ -6,7 +6,6 @@ import Data.List ( nub )
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NE
 
-
 parse :: [String] -> [[(Coord, Int)]]
 parse css = (\(y, cs) -> (\(x, c) -> ((x,y),read [c])) <$> zip [0..] cs) <$> zip [0..] css
 
@@ -17,8 +16,8 @@ inBounds :: Coord -> Bool
 inBounds (x,y) = (x<maxCoord) && (y<maxCoord) && (x>=0) && (y>=0)
 
 
-countTrees :: NonEmpty (Coord, Int) -> [Coord]
-countTrees (x:|xs) = go [fst x] (snd x) $ NE.fromList xs
+countLine :: NonEmpty (Coord, Int) -> [Coord]
+countLine (x:|xs) = go [fst x] (snd x) $ NE.fromList xs
   where
     go :: [Coord] -> Int -> NonEmpty (Coord, Int) -> [Coord]
     go cs mx ((c,t):| [])
@@ -30,28 +29,28 @@ countTrees (x:|xs) = go [fst x] (snd x) $ NE.fromList xs
 
 
 countAll :: [[(Coord, Int)]] -> Int
-countAll xss = length $ nub $ a++b++c++d
+countAll xss = length $ nub $ concatMap (\f -> countFn $ f nexss) directionFns
   where
+    countFn = concatMap countLine
     nexss = NE.fromList $ NE.fromList <$> xss
-    a = concatMap countTrees nexss
-    b = concatMap countTrees $ NE.reverse <$> nexss
-    c = concatMap countTrees $ NE.transpose nexss
-    d = concatMap countTrees $ NE.reverse <$> NE.transpose nexss
+    directionFns = [ id
+                 , (NE.reverse <$>)
+                 , NE.transpose
+                 , (NE.reverse <$>) . NE.transpose]
 
 
-scenicDistance :: Coord -> M.Map Coord Int -> Int
-scenicDistance t mp = go 0 0 up t * go 0 0 dn t * go 0 0 lt t * go 0 0 rt t
+scenicDistance :: M.Map Coord Int -> Coord -> Int
+scenicDistance mp t = product $ go 0 0 t <$> [up, dn, rt, lt]
   where
     treeHgt = mp M.! t
-    go distance hgt move lst
+    go distance hgt lst move
       | not (inBounds nxt) = distance
-      | nxtHgt >= treeHgt = distance + if nxtHgt>=hgt then 1 else 0
-      | nxtHgt >= hgt = go (distance+1) nxtHgt move nxt
-      | otherwise = go (distance+1) hgt move nxt
+      | nxtHgt >= treeHgt = distance + if nxtHgt >= hgt then 1 else 0
+      | nxtHgt >= hgt = go (distance + 1) nxtHgt nxt move
+      | otherwise = go (distance + 1) hgt nxt move
       where
         nxt = lst + move
         nxtHgt = mp M.! nxt
-
 
 
 day8 :: IO ()
@@ -61,6 +60,6 @@ day8 = do
       mp = M.fromList $ concat g
 
   putStrLn $ "Day8: part1: " ++ show (countAll g)
-  putStrLn $ "Day8: part1: " ++ show (maximum $ M.mapWithKey (\k _ -> scenicDistance k mp) mp)
+  putStrLn $ "Day8: part1: " ++ show (maximum $ scenicDistance mp <$> M.keys mp)
 
   return ()
