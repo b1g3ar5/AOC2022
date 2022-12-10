@@ -11,6 +11,7 @@ import Day5
 import Day6
 import Day7
 import Day8
+import Day8a
 import Day9
 import Day10
 import Day11
@@ -39,8 +40,9 @@ someFunc = do
   day6
   day7
   day8
+  day8a
   day9
-  --day10
+  day10
   --day11
   --day12
   --day13

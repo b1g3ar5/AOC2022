@@ -49,6 +49,7 @@ library
       Day6
       Day7
       Day8
+      Day8a
       Day9
       HeapIndexed
       Lib
@@ -62,6 +63,7 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       MissingH
+    , array
     , base >=4.7 && <5
     , containers
     , recursion-schemes
@@ -82,6 +84,7 @@ executable AOC2022-exe
   build-depends:
       AOC2022
     , MissingH
+    , array
     , base >=4.7 && <5
     , containers
     , recursion-schemes
@@ -103,6 +106,7 @@ test-suite AOC2022-test
   build-depends:
       AOC2022
     , MissingH
+    , array
     , base >=4.7 && <5
     , containers
     , recursion-schemes

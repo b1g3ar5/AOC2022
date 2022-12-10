@@ -1,6 +1,6 @@
 module Day9(day9) where
 
-import Data.Sequence (Seq(..), singleton, viewr, ViewR(..))
+import Data.Sequence (Seq(..), singleton)
 import qualified Data.Sequence as S
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -8,6 +8,7 @@ import Utils ( getLines, rt, lt, dn, up, Coord )
 
 
 data Dir = U | D | L | R deriving (Show, Eq)
+
 
 parseDir :: Char -> Coord
 parseDir 'U' = up
@@ -29,32 +30,28 @@ makeMove (path, start) (mv, dist) = go path dist start
     go acc 0 snake = (acc, snake)
     go acc n snake = go (newTail `Set.insert` acc) (n-1) newSnake
       where
-        newSnake = moveSnake snake mv
-        newTail :: Coord
-        newTail = case viewr newSnake of
-                    S.EmptyR -> error "The snake has no tail"
-                    (_ :> x) -> x
+        (newSnake, newTail) = moveSnake snake mv
         
 
 -- Parameters are the snake and the move required
-moveSnake :: Seq Coord -> Coord -> Seq Coord
+-- Returns the new snake and the new tail
+moveSnake :: Seq Coord -> Coord -> (Seq Coord, Coord)
 moveSnake Empty _ = error "There's no snake"
 moveSnake (h:<|ts) mv = go (singleton $ h+mv) ts
   where
-    go :: Seq Coord -> Seq Coord -> Seq Coord
-    go az@(_ :|> z) (x :<| Empty) = az :|> moveCoord z x
-    go az@(_ :|> z) (x :<| tts) = go (az :|> moveCoord z x) tts
+    go :: Seq Coord -> Seq Coord -> (Seq Coord, Coord)
+    go az@(_ :|> z) (x :<| tts)
+      | null tts = (az :|> newTail, newTail)
+      | otherwise = go (az :|> newTail) tts
+      where
+        newTail = moveCoord z x
     go _ _ = error "Error in moveSnake"
 
 
 moveCoord :: Coord -> Coord -> Coord
-moveCoord (fx, fy) back@(bx, by)
+moveCoord front@(fx, fy) back@(bx, by)
   | (abs (fx-bx) < 2) && (abs (fy-by) < 2) = back -- touching, don't move
-  | otherwise = (newCoord fx bx, newCoord fy by)
-  where
-    newCoord fc bc
-      | abs (fc-bc) == 2 = (fc+bc) `div` 2 -- average if 2 away
-      | otherwise = fc -- otherwise take row/col as front
+  | otherwise = back + signum (front - back)
 
 
 day9 :: IO ()

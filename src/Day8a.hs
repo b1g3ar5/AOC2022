@@ -1,14 +1,14 @@
-module Day8(day8) where
+module Day8a(day8a) where
 
-import qualified Data.Map.Strict as M
+import qualified Data.Array.IArray as A
 import Utils ( Coord, getLines, lt, rt, up, dn )
-import Data.List ( nub )
+import Data.List ( nub, groupBy, sort )
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NE
 
 
-parse :: [String] -> [[(Coord, Int)]]
-parse css = (\(y, cs) -> (\(x, c) -> ((x,y),read [c])) <$> zip [0..] cs) <$> zip [0..] css
+parse :: [String] -> A.Array Coord Int
+parse css = A.array ((0,0), (maxCoord-1, maxCoord-1)) $ concatMap (\(y, cs) -> (\(x, c) -> ((x,y),read [c])) <$> zip [0..] cs) $ zip [0..] css
 
 
 maxCoord :: Int
@@ -29,9 +29,11 @@ countLine (x:|xs) = go [fst x] (snd x) $ NE.fromList xs
       | otherwise = go cs mx $ NE.fromList ts
 
 
-countAll :: [[(Coord, Int)]] -> Int
-countAll xss = length $ nub $ concatMap (\f -> countFn $ f nexss) directionFns
+countAll :: A.Array Coord Int -> Int
+countAll arr = length $ nub $ concatMap (\f -> countFn $ f nexss) directionFns
   where
+    xss :: [[(Coord, Int)]]
+    xss = groupBy (\((i,_),_) ((j,_),_) -> i==j) $ sort $ A.assocs arr
     countFn = concatMap countLine
     nexss = NE.fromList $ NE.fromList <$> xss
     directionFns = [ id
@@ -40,10 +42,10 @@ countAll xss = length $ nub $ concatMap (\f -> countFn $ f nexss) directionFns
                  , (NE.reverse <$>) . NE.transpose]
 
 
-scenicDistance :: M.Map Coord Int -> Coord -> Int
+scenicDistance :: A.Array Coord Int -> Coord -> Int
 scenicDistance mp t = product $ go 0 0 t <$> [up, dn, rt, lt]
   where
-    treeHgt = mp M.! t
+    treeHgt = mp A.! t
     go distance hgt lst move
       | not (inBounds nxt) = distance
       | nxtHgt >= treeHgt = distance + if nxtHgt >= hgt then 1 else 0
@@ -51,16 +53,16 @@ scenicDistance mp t = product $ go 0 0 t <$> [up, dn, rt, lt]
       | otherwise = go (distance + 1) hgt nxt move
       where
         nxt = lst + move
-        nxtHgt = mp M.! nxt
+        nxtHgt = mp A.! nxt
 
 
-day8 :: IO ()
-day8 = do
+day8a :: IO ()
+day8a = do
   ss <- getLines 8
-  let g = parse ss
-      mp = M.fromList $ concat g
+  --let ss = test
+  let arr = parse ss
 
-  putStrLn $ "Day8: part1: " ++ show (countAll g)
-  putStrLn $ "Day8: part1: " ++ show (maximum $ scenicDistance mp <$> M.keys mp)
+  putStrLn $ "Day8a: part1: " ++ show (countAll arr)
+  putStrLn $ "Day8a: part1: " ++ show (maximum $ scenicDistance arr <$> A.indices arr)
 
   return ()
