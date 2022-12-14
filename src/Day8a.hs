@@ -1,8 +1,7 @@
 module Day8a(day8a) where
 
 import qualified Data.Array.IArray as A
-import Utils ( Coord, getLines, lt, rt, up, dn )
-import Data.List ( nub, groupBy, sort )
+import Utils ( dn, getLines, lt, rt, up, Coord, groupBy, nub, sort )
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NE
 
@@ -63,6 +62,6 @@ day8a = do
   let arr = parse ss
 
   putStrLn $ "Day8a: part1: " ++ show (countAll arr)
-  putStrLn $ "Day8a: part1: " ++ show (maximum $ scenicDistance arr <$> A.indices arr)
+  putStrLn $ "Day8a: part2: " ++ show (maximum $ scenicDistance arr <$> A.indices arr)
 
   return ()

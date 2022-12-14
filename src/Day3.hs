@@ -1,9 +1,8 @@
 module Day3(day3) where
 
 
-import Utils ( getLines )
-import Data.Char ( ord, isUpper )
-import Data.List.Split (chunksOf)
+import Utils 
+import Data.Char ( isUpper )
 import Data.List ( intersect ) 
 
 

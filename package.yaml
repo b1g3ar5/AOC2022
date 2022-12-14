@@ -25,9 +25,13 @@ dependencies:
 - MissingH
 - split
 - containers
+- unordered-containers
+- hashable
 - vector
 - recursion-schemes
 - array
+- mtl
+- search-algorithms
 
 default-extensions: GHC2021
 

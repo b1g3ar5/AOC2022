@@ -2,10 +2,8 @@
 
 module Day7(day7) where
 
+import Utils ( getLines, intercalate, lefts, rights )
 import qualified Data.Map.Strict as M
-import Utils ( getLines )
-import Data.Either ( lefts, rights )
-import Data.List ( intercalate )
 import Data.Functor.Base ( TreeF(..) )
 import Data.Functor.Foldable ( hylo )
 
@@ -74,7 +72,7 @@ day7 = do
       used = maximum $ fst . getDirectorySize g <$> M.keys g
       toDelete = used + 30000000 - 70000000
 
-  putStrLn $ "Day7: part2: " ++ show (sum $ filter (<=100000) $ fst . getDirectorySize g <$> M.keys g)
+  putStrLn $ "Day7: part1: " ++ show (sum $ filter (<=100000) $ fst . getDirectorySize g <$> M.keys g)
   putStrLn $ "Day7: part2: " ++ show (minimum $ filter (>=toDelete) $ fst . getDirectorySize g <$> M.keys g)
   
   return ()

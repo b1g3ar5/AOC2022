@@ -1,39 +1,62 @@
 module Day13(day13) where
 
---import qualified Data.Set as S
---import qualified Data.Vector as V
---import qualified Data.Map.Strict as M
---import qualified Data.IntMap.Strict as IM
---import Data.Sequence (Seq(..), (><), (|>), (<|))
---import Data.List ( foldl', transpose, (\\), delete, group, intercalate, intersect, nub, sort, sortOn )
---import Data.List.Split (chunksOf, splitOn)
---import Data.List.Utils (replace)
---import Data.Bifunctor (Bifunctor(bimap, first, second))
---import Data.Tuple (swap)
---import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
---import Data.Char (isAsciiLower, isAsciiUpper, toLower, toUpper, ord)
---import Control.Monad (guard)
---import Control.Monad.ST (runST, ST(..))
---import System.TimeIt ( timeIt )
---import Data.Semigroup (Semigroup(..))
---import Data.Monoid (Monoid(..))
---import Debug.Trace (trace)
---import Data.Bool (bool)
---import Data.Ord
---import Data.Function
 import Utils
+import Text.ParserCombinators.ReadP ( ReadP, (+++), between, char, sepBy )
+import Data.Functor ( (<&>) )
 
 
-parse :: String -> Int
-parse = read
+-- Can't use type and Either becasue it's a recursive type
+data Item = Item Int | List [Item] deriving (Show)
+
+comparePair :: Item -> Item -> Ordering
+comparePair (Item i) (Item j) = compare i j
+comparePair (List []) (List []) = EQ
+comparePair (List []) (List _) = LT
+comparePair (List _) (List []) = GT
+comparePair (Item i) (List js) = comparePair (List [Item i]) (List js)
+comparePair (List is) (Item j) = comparePair (List is) (List [Item j]) 
+comparePair (List (i:is)) (List (j:js)) = case comparePair i j of 
+                                              EQ -> comparePair (List is) (List js)
+                                              LT -> LT
+                                              GT -> GT
+
+
+instance Eq Item where
+  (==) :: Item -> Item -> Bool
+  i1 == i2 = compare i1 i2 == EQ
+
+
+instance Ord Item where
+  compare :: Item -> Item -> Ordering
+  compare = comparePair
+parseList :: ReadP Item
+parseList = between (char '[') (char ']') parseItems <&> List
+
+
+parseItems :: ReadP [Item]
+parseItems = sepBy parseItem (char ',')
+
+
+parseItem :: ReadP Item
+parseItem = (pInt <&> Item) +++ parseList
 
 
 day13 :: IO ()
 day13 = do
   ss <- getLines 13
-  let g = parse <$> ss
+  let i1, i2 :: Item
+      i1 = parseWith parseList "[[2]]"
+      i2 = parseWith parseList "[[6]]"
+      is1, is2 :: [Item]
+      is1 = parseWith parseList <$> filter (/="") ss
+      is2 = sort $ is1 ++ [i1, i2]
+      ix1 = 1 + fromJust (elemIndex i1 is2)
+      ix2 = 1 + fromJust (elemIndex i2 is2)
+      
 
-  putStrLn $ "Day13: part1: " ++ show g
-  putStrLn $ "Day13: part2: " ++ show ""
-
+  putStrLn $ "Day13: part1: " ++ show (sum $ (\(ix, p) -> if (p!!0) <= (p!!1) then ix else 0) <$> zip [(1::Int)..] (chunksOf 2 is1))
+  putStrLn $ "Day13: part2: " ++ show (ix1*ix2)
+  
   return ()
+
+

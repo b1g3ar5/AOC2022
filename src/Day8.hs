@@ -1,8 +1,7 @@
 module Day8(day8) where
 
 import qualified Data.Map.Strict as M
-import Utils ( Coord, getLines, lt, rt, up, dn )
-import Data.List ( nub )
+import Utils ( dn, getLines, lt, rt, up, Coord, nub )
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NE
 
@@ -61,6 +60,6 @@ day8 = do
       mp = M.fromList $ concat g
 
   putStrLn $ "Day8: part1: " ++ show (countAll g)
-  putStrLn $ "Day8: part1: " ++ show (maximum $ scenicDistance mp <$> M.keys mp)
+  putStrLn $ "Day8: part2: " ++ show (maximum $ scenicDistance mp <$> M.keys mp)
 
   return ()

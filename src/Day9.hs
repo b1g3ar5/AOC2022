@@ -4,7 +4,7 @@ import Data.Sequence (Seq(..), singleton)
 import qualified Data.Sequence as S
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Utils ( getLines, rt, lt, dn, up, Coord )
+import Utils ( dn, getLines, lt, rt, up, Coord )
 
 
 data Dir = U | D | L | R deriving (Show, Eq)
@@ -59,6 +59,6 @@ day9 = do
   ss <- getLines 9
   let moves = parse <$> ss
 
-  putStrLn $ "Day9: part2: " ++ show (length $ fst $ foldl makeMove (Set.empty, S.replicate 2 (0,0)) moves)
+  putStrLn $ "Day9: part1: " ++ show (length $ fst $ foldl makeMove (Set.empty, S.replicate 2 (0,0)) moves)
   putStrLn $ "Day9: part2: " ++ show (length $ fst $ foldl makeMove (Set.empty, S.replicate 10 (0,0)) moves)
   return ()

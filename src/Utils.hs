@@ -1,9 +1,50 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Utils where
+module Utils (
+  getLines
+  , splitOn
+  , chunksOf
+  , parseWith
+  , pInt
+  , Coord
+  , neighbours4
+  , neighbours8
+  , manhattan
+  , lt, rt, up, dn
+  , fromJust
+  , fromMaybe
+  , sort
+  , group
+  , groupBy
+  , sortBy 
+  , sortOn
+  , elemIndex 
+  , findIndex 
+  , nub
+  , intercalate
+  , transpose
+  , ord
+  , chr
+  , bimap 
+  , first
+  , second
+  , on
+  , lefts
+  , rights
+  , timeIt
+) where
 
-import Text.ParserCombinators.ReadP
 import Data.Char
+import Data.List.Split (chunksOf)
+import Data.Maybe ( fromJust, fromMaybe )
+import Data.List ( elemIndex, findIndex, group, groupBy, sort, sortBy, sortOn, nub, intercalate, transpose ) 
+import Data.Bifunctor ( Bifunctor(second, bimap, first) )
+import Data.Function ( on )
+import Data.Either ( lefts, rights )
+import System.TimeIt ( timeIt )
+import Text.ParserCombinators.ReadP ( ReadP, many1, readP_to_S, satisfy )
+import Data.Hashable
+
 
 
 --- Things to add
@@ -90,6 +131,7 @@ steadyState' f x = case f x of
 
 type Coord = (Int, Int)
 
+instance {-# OVERLAPPING #-} Hashable Coord where
 
 instance Num Coord where
   (x1, y1) + (x2, y2) = (x1+x2, y1+y2)

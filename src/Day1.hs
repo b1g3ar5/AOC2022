@@ -1,7 +1,6 @@
 module Day1(day1) where
 
-import Data.List ( sort )
-import Utils ( getLines, splitOn )
+import Utils ( getLines, splitOn, sort )
 
 
 day1 :: IO ()

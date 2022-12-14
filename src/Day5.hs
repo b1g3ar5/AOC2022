@@ -1,7 +1,7 @@
 module Day5(day5) where
 
-import Utils ( getLines, pInt, parseWith, splitOn )
-import Data.List ( transpose )
+
+import Utils ( getLines, pInt, parseWith, splitOn, transpose )
 import Text.ParserCombinators.ReadP ( ReadP, string )
 
 
