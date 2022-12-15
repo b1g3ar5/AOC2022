@@ -68,7 +68,7 @@ day15 = do
       distanceMap = beaconDistances g
       part1row = 2000000
 
-  putStrLn $ "Day15: part1: " ++ show (sum $ (\(l,h) -> h-l) <$> addIntervals (intervals part1row distanceMap))
+  putStrLn $ "Day15: part1: " ++ show (sum $ uncurry (flip (-)) <$> addIntervals (intervals part1row distanceMap))
   putStrLn $ "Day15: part2: " ++ show (findCoord distanceMap)
 
   return ()
