@@ -1,8 +1,6 @@
 module HeapIndexed where
 
 import Data.Foldable (Foldable(foldl')) 
-import qualified Data.Map.Strict as M
-import Data.Map.Strict (Map)
 
 
 data Heap k a = EmptyHeap | Heap k [a] (Heap k a) (Heap k a) deriving (Eq, Ord, Functor, Foldable, Show)
@@ -18,7 +16,7 @@ size EmptyHeap = 0
 size (Heap _ _ l r) = 1 + size l + size r
 
 
-singleton :: Ord k => k -> a -> Heap k a
+singleton :: k -> a -> Heap k a
 singleton i x = Heap i [x] EmptyHeap EmptyHeap
 
 
@@ -49,7 +47,7 @@ toList t = inorder t []
 
 extractMin ::  (Ord k, Ord a) => Heap k a -> Maybe ((k,a), Heap k a)
 extractMin EmptyHeap = Nothing
-extractMin (Heap i [] l r) = error $ "This should not be possible in extractMin"
+extractMin (Heap _ [] _ _) = error "This should not be possible in extractMin"
 extractMin (Heap i [x] l r) = Just ((i,x), l `union` r)
 extractMin (Heap i (x:xs) l r) = Just ((i,x), Heap i xs l r)
 

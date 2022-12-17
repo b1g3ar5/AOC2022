@@ -2,7 +2,7 @@
 
 module Day12(day12) where
 
-import Utils ( getLines, neighbours4, Coord, ord, timeIt )
+import Utils ( getLines, neighbours4, Coord, ord )
 import Data.Array.IArray ( Array, (!), array, assocs, indices )
 import qualified Search as S
 import Data.Hashable

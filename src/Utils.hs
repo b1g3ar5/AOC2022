@@ -32,11 +32,14 @@ module Utils (
   , lefts
   , rights
   , timeIt
+  , isJust
+  , isNothing
+  , trace
 ) where
 
 import Data.Char
 import Data.List.Split (chunksOf)
-import Data.Maybe ( fromJust, fromMaybe )
+import Data.Maybe ( fromJust, fromMaybe, isJust, isNothing )
 import Data.List ( elemIndex, findIndex, group, groupBy, sort, sortBy, sortOn, nub, intercalate, transpose ) 
 import Data.Bifunctor ( Bifunctor(second, bimap, first) )
 import Data.Function ( on )
@@ -44,6 +47,7 @@ import Data.Either ( lefts, rights )
 import System.TimeIt ( timeIt )
 import Text.ParserCombinators.ReadP ( ReadP, many1, readP_to_S, satisfy )
 import Data.Hashable
+import Debug.Trace (trace)
 
 
 

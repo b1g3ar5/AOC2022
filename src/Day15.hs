@@ -73,4 +73,3 @@ day15 = do
 
   return ()
 
-
