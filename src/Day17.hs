@@ -7,15 +7,19 @@ import qualified Utils as U
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as H
 
+
 type Rock = Set Coord
 type Gas = String
 type Rockix = Int
 type Gasix = Int
+type Memo = HashMap (Rock, Gasix, Rockix) (Int, Int)
+
 
 -- reverse up/dn from Utils
 up', dn' :: Coord
 up' = U.dn
 dn' = U.up
+
 
 r1, r2, r3, r4, r5 :: Coord -> Rock
 r1 c = S.fromList [c, c+rt, c+rt+rt, c+rt+rt+rt]
@@ -27,6 +31,7 @@ r5 c = S.fromList [c, c+rt, c+up', c+up'+rt]
 
 rocks :: [Coord -> Rock]
 rocks = [r1, r2, r3, r4, r5]
+
 
 ltEdge, rtEdge :: Rock -> Int
 ltEdge rs = minimum $ S.map fst rs
@@ -69,8 +74,6 @@ addRock gas (inRock, inGasix) rix = go (start, inGasix)
         newr = if (gas !! gix) == '<' then moveLt inRock r else moveRt inRock r
         down = moveDn inRock newr
 
-
-type Memo = HashMap (Rock, Gasix, Rockix) (Int, Int)
 
 addRocks :: Int -> Gas -> (Rock, Int)
 addRocks n gas = go H.empty n (start, 0, 0) 0
