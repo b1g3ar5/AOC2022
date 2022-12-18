@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Utils (
   getLines
@@ -7,10 +8,16 @@ module Utils (
   , parseWith
   , pInt
   , Coord
+  , Coord3
   , neighbours4
+  , neighbours6
   , neighbours8
   , manhattan
+  , manhattan3
   , lt, rt, up, dn
+  , leftOf, rightOf, above, below
+  , directions4
+  , directions8
   , fromJust
   , fromMaybe
   , sort
@@ -35,6 +42,7 @@ module Utils (
   , isJust
   , isNothing
   , trace
+  , floodFill
 ) where
 
 import Data.Char
@@ -48,6 +56,13 @@ import System.TimeIt ( timeIt )
 import Text.ParserCombinators.ReadP ( ReadP, many1, readP_to_S, satisfy )
 import Data.Hashable
 import Debug.Trace (trace)
+import qualified Data.Sequence as S
+import Data.Sequence (Seq(..), ViewL(..), (><))
+import qualified Data.Set as Set
+import Data.Set (Set)
+import System.IO.Error (alreadyInUseErrorType)
+import Queue (Queue)
+import qualified Queue as Q
 
 
 
@@ -134,6 +149,7 @@ steadyState' f x = case f x of
 
 
 type Coord = (Int, Int)
+type Coord3 = (Int, Int, Int)
 
 instance {-# OVERLAPPING #-} Hashable Coord where
 
@@ -146,8 +162,20 @@ instance Num Coord where
   fromInteger i = (fromInteger i, 0)
 
 
+instance Num Coord3 where
+  (x1, y1, z1) + (x2, y2, z2) = (x1+x2, y1+y2, z1+z2)
+  (x1, y1, z1) - (x2, y2, z2) = (x1-x2, y1-y2, z1-z2)
+  (x1, y1, z1) * (x2, y2, z2) = (x1*x2, y1*y2, z1*z2)
+  abs (x, y, z) = (abs x, abs y, abs z)
+  signum (x, y, z) = (signum x, signum y, signum z)
+  fromInteger i = (fromInteger i, 0, 0)
+
+
+
 manhattan :: Coord -> Coord -> Int
-manhattan (x1, y1) (x2, y2) = abs (x1 - x2) +  abs (y1 - y2)
+manhattan (x1, y1) (x2, y2) = abs (x1 - x2) + abs (y1 - y2)
+manhattan3 :: Coord3 -> Coord3 -> Int
+manhattan3 (x1, y1, z1) (x2, y2, z2) = abs (x1 - x2) + abs (y1 - y2) + abs (z1 - z2)
 
 
 euclidian :: Coord -> Coord -> Double
@@ -163,6 +191,9 @@ antiTurn (x, y) = (y, -x)
 neighbourCoords4 :: [Coord]
 neighbourCoords4 = [(1,0), (-1,0), (0,1), (0,-1)]
 
+neighbourCoords6 :: [Coord3]
+neighbourCoords6 = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]
+
 
 neighbourCoords8 :: [Coord]
 neighbourCoords8 = [(x, y) | x <- [-1, 0, 1], y <- [-1, 0, 1], (x, y) /= (0, 0)]
@@ -171,6 +202,9 @@ neighbourCoords8 = [(x, y) | x <- [-1, 0, 1], y <- [-1, 0, 1], (x, y) /= (0, 0)]
 neighbours4 :: Coord -> [Coord]
 neighbours4 c = neighbourCoords4 `at` c
 
+neighbours6 :: Coord3 -> [Coord3]
+neighbours6 c = neighbourCoords6 `at3` c
+
 
 neighbours8 :: Coord -> [Coord]
 neighbours8 c = neighbourCoords8 `at` c
@@ -178,6 +212,9 @@ neighbours8 c = neighbourCoords8 `at` c
 
 at :: [Coord] -> Coord -> [Coord]
 coords `at` origin = map (+ origin) coords
+
+at3 :: [Coord3] -> Coord3 -> [Coord3]
+coords `at3` origin = map (+ origin) coords
 
 
 -- All coords in a grid in (x, y) (col, row) order
@@ -206,3 +243,25 @@ lt = (-1,0)
 rt = (1,0)
 up = (0,-1)
 dn = (0,1)
+
+
+floodFill :: Ord a => a -> (a -> [a]) -> [a]
+floodFill start getNext = go Set.empty (Q.fromList [start]) --(Seq.singleton start)
+  where
+    go !seen = \case
+                Q.Empty -> []
+                x Q.:<| newq 
+                  | x `Set.member` seen -> go seen newq
+                  | otherwise -> x : go (x `Set.insert` seen) (Q.appendList newq (getNext x))
+  
+
+bfs :: Ord a => (a -> [a]) -> [a]-> [a]
+bfs next start = loop Set.empty (Q.fromList start)
+  where
+    loop !seen = \case
+                  Q.Empty -> []
+                  x Q.:<| newq
+                    | x `Set.member` seen -> loop seen newq
+                    | otherwise -> x : loop (x `Set.insert` seen) (Q.appendList newq (next x))
+
+

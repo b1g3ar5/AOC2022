@@ -54,6 +54,7 @@ library
       Enumeration
       HeapIndexed
       Lib
+      Queue
       Search
       Utils
   other-modules:

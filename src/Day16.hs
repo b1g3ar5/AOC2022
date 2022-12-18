@@ -1,20 +1,15 @@
 module Day16(day16) where
 
---import qualified Data.Set as S
---import qualified Data.Vector as V
 import qualified Data.Map.Strict as M
 import Data.Map.Strict (Map, (!))
 
-import Utils
+import Utils ( fromJust, isJust, getLines, splitOn, timeIt )
 import qualified Data.Set as S
 import Data.Set (Set)
 import Data.Functor.Foldable
-import Data.Functor.Base hiding (head)
-import Data.Tree
-import Data.List
-import GHC.Base (VecElem(Int16ElemRep))
+import Data.Functor.Base ( TreeF(..) )
+import Data.List ( tails )
 
--- Valve AA has flow rate=0; tunnels lead to valves DD, II, BB"
 
 type Room = String
 type Time = Int
@@ -25,6 +20,7 @@ data State = State {pos::Room, time::Time, open::Set Room, pressure:: Int} deriv
 
 -- Could we unfold a useful tree?
 -- Too slow - it would take about 2 hours
+-- We can't prune here because one branch doesn't know what the other branch is doing
 buildTree :: Cave -> Int
 buildTree c = hylo alg coalg $ State "AA" 15 S.empty 0
   where
@@ -88,7 +84,7 @@ solver cave = go [(State' "AA" S.empty, 0)]
             [(State' room (S.insert room openValves), pressure + (t-1) * fromJust amt)
                 | S.notMember room openValves
                 , let amt = fst (cave ! room), isJust amt]
-    -- This prunes all the children at each level and onyl keeps the fittest
+    -- This prunes all the children at each level and only keeps the fittest
     -- I can't do this in the tree because the nodes at each level don't know what 
     -- the other nodes are doing...
     prune = M.assocs . M.fromListWith max
@@ -97,18 +93,15 @@ solver cave = go [(State' "AA" S.empty, 0)]
 day16 :: IO ()
 day16 = do
   ss <- getLines 16
-  let ss = test
+  --let ss = test
   let g = M.fromList $ parse <$> ss
       routeValues2 = solver g 26
       solution2 = maximum [v1+v2 | (open1,v1) : elephants <- tails (M.assocs routeValues2),
                                    (open2,v2) <- elephants,
                                    S.null (S.intersection open1 open2)]
 
-  --putStrLn $ "Day16: part2: " ++ show g
-  timeIt $ putStrLn $ "Day16: part1: " ++ show (maximum $ solver g 15)
-  timeIt $ putStrLn $ "Day16: part2: " ++ show solution2
-  timeIt $ putStrLn $ "Day16: part2: " ++ show (buildTree g)
-  timeIt $ putStrLn $ "Day16: part2: " ++ show (buildTree' g)
+  putStrLn $ "Day16: part1: " ++ show (maximum $ solver g 30)
+  putStrLn $ "Day16: part2: " ++ show solution2
 
   return ()
 
