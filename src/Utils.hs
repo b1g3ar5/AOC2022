@@ -43,6 +43,7 @@ module Utils (
   , isNothing
   , trace
   , floodFill
+  , bfs
 ) where
 
 import Data.Char
@@ -63,6 +64,7 @@ import Data.Set (Set)
 import System.IO.Error (alreadyInUseErrorType)
 import Queue (Queue)
 import qualified Queue as Q
+import Data.Foldable
 
 
 
@@ -263,5 +265,15 @@ bfs next start = loop Set.empty (Q.fromList start)
                   x Q.:<| newq
                     | x `Set.member` seen -> loop seen newq
                     | otherwise -> x : loop (x `Set.insert` seen) (Q.appendList newq (next x))
+
+
+dfs :: Ord a => (a -> [a]) -> [a]-> [a]
+dfs next start = loop Set.empty (Q.fromList start)
+  where
+    loop !seen = \case
+                  Q.Empty -> []
+                  x Q.:<| newq
+                    | x `Set.member` seen -> loop seen newq
+                    | otherwise -> x : loop (x `Set.insert` seen) (foldl' (\q x -> Q.cons x q) newq (next x))
 
 

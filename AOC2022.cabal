@@ -71,6 +71,7 @@ library
     , containers
     , hashable
     , mtl
+    , parallel
     , recursion-schemes
     , search-algorithms
     , split
@@ -96,6 +97,7 @@ executable AOC2022-exe
     , containers
     , hashable
     , mtl
+    , parallel
     , recursion-schemes
     , search-algorithms
     , split
@@ -122,6 +124,7 @@ test-suite AOC2022-test
     , containers
     , hashable
     , mtl
+    , parallel
     , recursion-schemes
     , search-algorithms
     , split

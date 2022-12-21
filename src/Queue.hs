@@ -62,6 +62,10 @@ pop _                 = Nothing
 snoc :: a -> Queue a -> Queue a
 snoc x (Queue f r s) = exec f (x:r) s
 
+-- Added - should not be allowed - write a deque...
+cons :: a -> Queue a -> Queue a
+cons x (Queue f r s) = Queue (x:f) r (s+1)
+
 exec :: [a] -> [a] -> Int -> Queue a
 exec f r 0    = fromList (rotate f r [])
 exec f r i = Queue f r (i-1)
