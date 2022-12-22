@@ -4,17 +4,20 @@
 module Utils (
   getLines
   , splitOn
+  , splitWhen
   , chunksOf
   , parseWith
   , pInt
   , Coord
   , Coord3
+  , scale3
   , neighbours4
   , neighbours6
   , neighbours8
   , manhattan
   , manhattan3
   , lt, rt, up, dn
+  , lt3, rt3, up3, dn3, in3, ot3
   , leftOf, rightOf, above, below
   , directions4
   , directions8
@@ -44,6 +47,7 @@ module Utils (
   , trace
   , floodFill
   , bfs
+  , fromRight
 ) where
 
 import Data.Char
@@ -52,7 +56,7 @@ import Data.Maybe ( fromJust, fromMaybe, isJust, isNothing )
 import Data.List ( elemIndex, findIndex, group, groupBy, sort, sortBy, sortOn, nub, intercalate, transpose ) 
 import Data.Bifunctor ( Bifunctor(second, bimap, first) )
 import Data.Function ( on )
-import Data.Either ( lefts, rights )
+import Data.Either ( lefts, rights, fromRight )
 import System.TimeIt ( timeIt )
 import Text.ParserCombinators.ReadP ( ReadP, many1, readP_to_S, satisfy )
 import Data.Hashable
@@ -104,12 +108,21 @@ getTest = getT lines
 
 
 -- splits a list on an item and deletes the item
-splitOn  :: Eq a => a -> [a] -> [[a]]
+splitOn :: Eq a => a -> [a] -> [[a]]
 splitOn s = go [] []
   where
     go acc next [] = acc ++ [next]
     go acc next (l:ls)
       | l == s = go (acc ++ [next]) [] ls
+      | otherwise = go acc (next ++ [l]) ls
+
+
+splitWhen :: Eq a => (a -> Bool) -> [a] -> [[a]]
+splitWhen p = go [] []
+  where
+    go acc next [] = acc ++ [next]
+    go acc next (l:ls)
+      | p l = go (acc ++ [next]) [] ls
       | otherwise = go acc (next ++ [l]) ls
 
 
@@ -172,6 +185,9 @@ instance Num Coord3 where
   signum (x, y, z) = (signum x, signum y, signum z)
   fromInteger i = (fromInteger i, 0, 0)
 
+
+scale3 :: Int -> Coord3 -> Coord3
+scale3 k (x,y,z) = (k*x, k*y, k*z)
 
 
 manhattan :: Coord -> Coord -> Int
@@ -245,6 +261,15 @@ lt = (-1,0)
 rt = (1,0)
 up = (0,-1)
 dn = (0,1)
+
+lt3, rt3, up3, dn3, in3, ot3 :: Coord3
+lt3 = (-1,0,0)
+rt3 = (1,0,0)
+up3 = (0,-1,0)
+dn3 = (0,1,0)
+in3 = (0,0,1)
+ot3 = (0,0,-1)
+
 
 
 floodFill :: Ord a => a -> (a -> [a]) -> [a]
