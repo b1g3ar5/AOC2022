@@ -48,10 +48,14 @@ module Utils (
   , floodFill
   , bfs
   , fromRight
+  , catMaybes
+  , comparing
+  , levi
+  , crossProduct
 ) where
 
 import Data.Char
-import Data.List.Split (chunksOf)
+import Data.List.Split (chunksOf, keepDelimsL)
 import Data.Maybe ( fromJust, fromMaybe, isJust, isNothing )
 import Data.List ( elemIndex, findIndex, group, groupBy, sort, sortBy, sortOn, nub, intercalate, transpose ) 
 import Data.Bifunctor ( Bifunctor(second, bimap, first) )
@@ -69,6 +73,8 @@ import System.IO.Error (alreadyInUseErrorType)
 import Queue (Queue)
 import qualified Queue as Q
 import Data.Foldable
+import Data.Maybe
+import Data.Ord
 
 
 
@@ -269,6 +275,27 @@ up3 = (0,-1,0)
 dn3 = (0,1,0)
 in3 = (0,0,1)
 ot3 = (0,0,-1)
+
+levi :: Int -> Int -> Int -> Int
+levi 0 1 2 = 1
+levi 1 2 0 = 1
+levi 2 0 1 = 1
+levi 0 2 1 = -1
+levi 2 1 0 = -1
+levi 1 0 2 = -1
+levi i j k
+  | i==j || i == k || j == k = 0
+  | otherwise = error $ "Error in Levi Civita for i,j,k: " ++ show (i,j,k)
+
+-- Basis...
+e :: [Coord3]
+e = [(1,0,0), (0,1,0), (0,0,1)]
+
+crossProduct :: Coord3 -> Coord3 -> Coord3
+crossProduct (v1,v2,v3) (w1,w2,w3) = sum $ (\i -> sum $ (\j -> sum $ (\k -> scale3 (levi i j k * (v!!j) * (w!!k)) (e!!i)) <$> [0..2]) <$> [0..2]) <$> [0..2]
+  where
+    v = [v1,v2,v3]
+    w = [w1,w2,w3]
 
 
 
