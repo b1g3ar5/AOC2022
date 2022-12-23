@@ -5,11 +5,12 @@ import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 import Data.List ( maximumBy, minimumBy )
 
--- Extremely messy solution - with a "by hand" score2 for the second part
+-- Messy solution - with a "by hand" score2 for the second part
+-- and "by hand" parsing of the input to a 3D cube.
 -- Needs a rewrite with some clever vector manipulation
--- At least I use cross product for the turns
--- and I noticde that when you wrap round a corner of the cube you just have to swap
--- the face (represented as the normal) and the direction
+-- I noticed that when you wrap round a corner of the cube you just have to swap
+-- the face (represented as the normal) and the direction.
+-- Also I do use cross product for thr 3D turns
 
 data Cell = Wall | Path deriving (Eq, Show)
 
@@ -94,19 +95,10 @@ parseIns s = second parseTurn <$> zip ns ls
     ns = read <$> splitWhen (\c -> c=='R' || c=='L') s
     ls = filter  (\c -> c=='R' || c=='L') s
 
+
 turn :: Turn -> Coord -> Coord
-turn Lt c
-  | c==up = lt
-  | c==dn = rt
-  | c==lt = dn
-  | c==rt = up
-  | otherwise = error $ "Error in turn with: " ++ show c
-turn Rt c
-  | c==up = rt
-  | c==dn = lt
-  | c==lt = up
-  | c==rt = dn
-  | otherwise = error $ "Error in turn with: " ++ show c
+turn Rt = clockTurn
+turn Lt = antiTurn
 
 
 apply2D :: Map Coord Cell -> [(Int, Turn)] -> (Coord, Coord) -> (Coord, Coord)
@@ -144,6 +136,14 @@ score2D ((x, y), d)
   | otherwise = error "Incorrect direction in score"
 
 
+turn3 :: Turn -> (Face, Direction) -> Direction
+turn3 Lt (f,d) = crossProduct f d
+turn3 Rt (f,d) = scale3 (-1) $ crossProduct f d
+
+wrap3 :: (Face, Direction) -> (Face, Direction)
+wrap3 (f, d) = (d, scale3 (-1) f)
+
+
 apply3D :: Map (Face, Coord3) Cell -> [(Int, Turn)] -> (Face, Direction, Coord3) -> (Face, Direction, Coord3)
 apply3D _ [] (f, d, p) = (f, turn3 Lt (f, d), p)
 apply3D mp (nt:others) fdp = apply3D mp others $ go nt fdp
@@ -176,24 +176,7 @@ day22 = do
       mp3 = parse3D $ init $ init ss
 
   putStrLn $ "Day22: part1: " ++ show (score2D $ apply2D mp2 ins ((8,0), rt)) -- 58248
-  putStrLn $ "Day22: part2: " ++ show (apply3D mp3 ins (ot3, rt3, (0,0,0))) --179091
   putStrLn $ "Day22: part2: " ++ show (score3D $ apply3D mp3 ins (ot3, rt3, (0,0,0))) --179091
 
-
   return ()
-
-
---turn3 :: Turn -> (Face, Direction) -> Direction
---turn3 Lt (f,d) = crossProduct (normal f) d
---turn3 Rt (f,d) = scale3 (-1) $ crossProduct (normal f) d
-
---wrap3 :: (Face, Direction) -> (Face, Direction)
---wrap3 (f, d) = (unnormal d, scale3 (-1) $ normal f)
-
-turn3 :: Turn -> (Face, Direction) -> Direction
-turn3 Lt (f,d) = crossProduct f d
-turn3 Rt (f,d) = scale3 (-1) $ crossProduct f d
-
-wrap3 :: (Face, Direction) -> (Face, Direction)
-wrap3 (f, d) = (d, scale3 (-1) f)
 

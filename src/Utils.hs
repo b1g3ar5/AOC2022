@@ -4,6 +4,8 @@
 module Utils (
   getLines
   , splitOn
+  , clockTurn
+  , antiTurn
   , splitWhen
   , chunksOf
   , parseWith
