@@ -5,8 +5,6 @@ import Data.Set (Set, notMember, intersection)
 import qualified Data.Set as S
 
 
-data Cell = Elf | Space deriving (Eq, Show)
-
 parse :: [String] -> [Coord]
 parse css= catMaybes $ concatMap (\(y, cs) -> (\(x,c) -> (if c=='#' then Just (x,y) else Nothing)) <$> zip [0..] cs) $ zip [0..] css
 
@@ -48,6 +46,7 @@ allEmpty :: Set Coord -> Set Coord -> Bool
 allEmpty test elves = null $ test `intersection` elves
 
 
+-- Really slow here - lots of duplication
 propose :: Set Coord -> Set Coord -> Set (Coord, Coord)
 propose dir elves = S.map go elves 
   where
@@ -58,6 +57,8 @@ propose dir elves = S.map go elves
       | allEmpty (S.map (e+) $ next2 dir) elves = (e, e + extract (next2 dir))
       | allEmpty (S.map (e+) $ next3 dir) elves = (e, e + extract (next3 dir))
       | otherwise = (e, e)
+      where
+        ns = S.fromList (neighbours8 e) `S.intersection` elves
 
 
 move :: Set Coord -> Set Coord -> Set Coord
@@ -72,27 +73,21 @@ choose xs = S.map (\((x,y),n) -> if n == 1 then y else x) $ S.map go xs
     go xx@(_, x) = (xx, S.size $ S.filter ((==x) . snd) xs)
 
 
-keepMoving :: Int -> Set Coord -> Set Coord
-keepMoving n = go n lookN
+keepMoving :: Int -> Set Coord -> Set Coord -> Set Coord
+keepMoving n dir es 
+  | n==0 = es
+  | nxt == es = es
+  | otherwise = keepMoving (n-1) (next dir) nxt
   where
-    go :: Int -> Set Coord -> Set Coord -> Set Coord
-    go m dir es
-      | m==0 = es
-      | nxt == es = es
-      | otherwise = go (m-1) (next dir) nxt
-      where
-        nxt = move dir es
+    nxt = move dir es
 
 
-keepMoving2 :: Set Coord -> Int
-keepMoving2 = go 0 lookN
+keepMoving2 :: Int -> Set Coord -> Set Coord -> Int
+keepMoving2 n dir es
+  | nxt == es = n+1
+  | otherwise = keepMoving2 (n+1) (next dir) nxt
   where
-    go :: Int -> Set Coord -> Set Coord -> Int
-    go m dir es
-      | nxt == es = m+1
-      | otherwise = go (m+1) (next dir) nxt
-      where
-        nxt = move dir es
+    nxt = move dir es
 
 
 score :: Set Coord -> Int
@@ -109,7 +104,7 @@ day23 = do
   ss <- getLines 23
   let g = S.fromList $ parse ss
 
-  putStrLn $ "Day23: part1: " ++ show (score $ keepMoving 10 g)
-  timeIt $ putStrLn $ "Day23: part1: " ++ show (keepMoving2 g) 
+  putStrLn $ "Day23: part1: " ++ show (score $ keepMoving 10 lookN g)
+  timeIt $ putStrLn $ "Day23: part1: " ++ show (keepMoving2 0 lookN g) 
 
   return ()

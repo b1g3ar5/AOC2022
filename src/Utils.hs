@@ -13,6 +13,7 @@ module Utils (
   , Coord
   , Coord3
   , scale3
+  , scale
   , neighbours4
   , neighbours6
   , neighbours8
@@ -196,6 +197,9 @@ instance Num Coord3 where
 
 scale3 :: Int -> Coord3 -> Coord3
 scale3 k (x,y,z) = (k*x, k*y, k*z)
+
+scale :: Int -> Coord -> Coord
+scale k (x,y) = (k*x, k*y)
 
 
 manhattan :: Coord -> Coord -> Int
