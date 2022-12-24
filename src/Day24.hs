@@ -79,7 +79,7 @@ bfs next isFinished startState = go S.empty (S.singleton startState)
                           ns = normalise s
 
 
--- Repeat part1 2 more times times for part 2 rather than adapting the bfs to keep going...
+-- Repeat part1 2 more times times for part 2 rather than adapting the bfs.
 day24 :: IO ()
 day24 = do
   ss <- getLines 24
