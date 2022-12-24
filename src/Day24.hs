@@ -66,11 +66,12 @@ bfs next isFinished startState = go S.empty (S.singleton startState)
       | null q = Nothing
       | otherwise = case S.minView q of
                       Nothing -> Nothing
-                      Just (x, newq)
-                        | isFinished x -> Just x 
-                        | x `S.member` seen -> go seen newq
-                        | otherwise -> go (normalise x `S.insert` seen) (S.union newq (next x))
-
+                      Just (s, newq)
+                        | isFinished s -> Just s
+                        | ns `S.member` seen -> go seen newq
+                        | otherwise -> go (ns `S.insert` seen) (S.union newq (next s))
+                        where
+                          ns = normalise s
 
 day24 :: IO ()
 day24 = do
