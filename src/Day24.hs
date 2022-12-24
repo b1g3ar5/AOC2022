@@ -12,6 +12,8 @@ type Snow = Map Direction (Set Coord)
 data State = State {time :: Int , pos :: Coord} deriving (Eq, Show, Ord)
 
 
+-- The show repeats with period lcm of the rows and cols
+-- so we don't need to revisit states with the same position and time mod this lcm
 normalise :: State -> State
 normalise (State t p) = State (t `mod` lcm gridRows gridCols) p
 
@@ -41,6 +43,8 @@ inBounds (x,y) = (0<=x && x<gridCols && 0<=y && y<gridRows)
                 || ((x == 0) && (y == -1))
 
 
+-- It's quicker to move the position backwards and compare to
+-- a stationary set of blizzards
 isSafe :: Snow -> Int -> Coord -> Bool
 isSafe snow t (x,y) = (x, yu) `S.notMember` (snow ! Up)
                    && (x, yd) `S.notMember` (snow ! Dn)
@@ -59,6 +63,7 @@ nextStates snow (State t pos) = S.fromList (State (t+1) <$> moves)
     moves = filter (\n -> inBounds n && isSafe snow (t+1) n) $ pos : neighbours4 pos
 
 
+-- Nothing special here
 bfs :: (State -> Set State) -> (State -> Bool) -> State -> Maybe State
 bfs next isFinished startState = go S.empty (S.singleton startState)
   where
@@ -73,6 +78,8 @@ bfs next isFinished startState = go S.empty (S.singleton startState)
                         where
                           ns = normalise s
 
+
+-- Repeat part1 2 more times times for part 2 rather than adapting the bfs to keep going...
 day24 :: IO ()
 day24 = do
   ss <- getLines 24
