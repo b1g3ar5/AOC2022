@@ -106,6 +106,6 @@ day21 = do
   putStrLn $ "Day21: part1: " ++ show (eval "root" g)
   putStrLn $ "Day21: part1:hylo " ++ show (hylo alg1 coalg ("root", g))
   putStrLn $ "Day21: part2: " ++ show (newton gg)
-  putStrLn $ "Day21: part2:hlyo " ++ show (head $ rights [hylo alg2 coalg ("root", g)])
+  putStrLn $ "Day21: part2:hylo " ++ show (head $ rights [hylo alg2 coalg ("root", g)])
 
   return ()

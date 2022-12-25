@@ -4,36 +4,25 @@ import Utils
 import Data.Set (Set, notMember, intersection)
 import qualified Data.Set as S
 
+data Dir = N | S | W | E deriving (Eq, Show)
+
+next, next2, next3 :: Dir -> Dir
+next N = S
+next S = W
+next W = E
+next E = N
+next2 = next . next
+next3 = next . next . next
+
+toCoord :: Dir -> Coord
+toCoord N = up
+toCoord S = dn
+toCoord E = rt
+toCoord W = lt
+
 
 parse :: [String] -> [Coord]
 parse css= catMaybes $ concatMap (\(y, cs) -> (\(x,c) -> (if c=='#' then Just (x,y) else Nothing)) <$> zip [0..] cs) $ zip [0..] css
-
-
-lookN, lookS, lookW, lookE :: Set Coord
-lookN = S.fromList [(-1,-1), (0,-1), (1,-1)]
-lookS = S.fromList [(-1,1), (0,1), (1,1)]
-lookW = S.fromList [(-1,1), (-1,0), (-1,-1)]
-lookE = S.fromList [(1,-1), (1,0), (1,1)]
-
-
-extract :: Set Coord -> Coord
-extract cs
-  | cs == lookN = (0,-1)
-  | cs == lookS = (0,1)
-  | cs == lookW = (-1,0)
-  | cs == lookE = (1,0)
-  | otherwise = error "!!!"
-
-
-next, next2, next3 :: Set Coord -> Set Coord
-next cs
-  | cs == lookN = lookS
-  | cs == lookS = lookW
-  | cs == lookW = lookE
-  | cs == lookE = lookN
-  | otherwise = error "Error in next"
-next2 = next . next
-next3 = next . next . next
 
 
 inSpace :: Coord -> Set Coord -> Bool
@@ -42,26 +31,27 @@ inSpace e es = and $ (`notMember` es) <$> ns
     ns = neighbours8 e
 
 
-allEmpty :: Set Coord -> Set Coord -> Bool
-allEmpty test elves = null $ test `intersection` elves
-
-
 -- Really slow here - lots of duplication
-propose :: Set Coord -> Set Coord -> Set (Coord, Coord)
+propose :: Dir -> Set Coord -> Set (Coord, Coord)
 propose dir elves = S.map go elves 
   where
     go e
       | inSpace e elves = (e,e)
-      | allEmpty (S.map (e+)         dir) elves = (e, e + extract dir)
-      | allEmpty (S.map (e+) $ next  dir) elves = (e, e + extract (next dir))
-      | allEmpty (S.map (e+) $ next2 dir) elves = (e, e + extract (next2 dir))
-      | allEmpty (S.map (e+) $ next3 dir) elves = (e, e + extract (next3 dir))
+      | and (get         dir) = (e, e + toCoord       dir)
+      | and (get $ next  dir) = (e, e + toCoord (next dir))
+      | and (get $ next2 dir) = (e, e + toCoord (next2 dir))
+      | and (get $ next3 dir) = (e, e + toCoord (next3 dir))
       | otherwise = (e, e)
       where
-        ns = S.fromList (neighbours8 e) `S.intersection` elves
+        ns@(n:_) = (`notMember` elves) <$> neighbours8 e
+        get :: Dir -> Set Bool
+        get N = S.fromList $ take 3 ns
+        get E = S.fromList $ take 3 $ drop 2 ns
+        get S = S.fromList $ take 3 $ drop 4 ns
+        get W = S.fromList $ take 3 $ drop 6 ns ++ [n]
 
 
-move :: Set Coord -> Set Coord -> Set Coord
+move :: Dir -> Set Coord -> Set Coord
 move dir elves = choose proposed
   where
     proposed = propose dir elves
@@ -73,7 +63,7 @@ choose xs = S.map (\((x,y),n) -> if n == 1 then y else x) $ S.map go xs
     go xx@(_, x) = (xx, S.size $ S.filter ((==x) . snd) xs)
 
 
-keepMoving :: Int -> Set Coord -> Set Coord -> Set Coord
+keepMoving :: Int -> Dir -> Set Coord -> Set Coord
 keepMoving n dir es 
   | n==0 = es
   | nxt == es = es
@@ -82,7 +72,7 @@ keepMoving n dir es
     nxt = move dir es
 
 
-keepMoving2 :: Int -> Set Coord -> Set Coord -> Int
+keepMoving2 :: Int -> Dir -> Set Coord -> Int
 keepMoving2 n dir es
   | nxt == es = n+1
   | otherwise = keepMoving2 (n+1) (next dir) nxt
@@ -104,7 +94,7 @@ day23 = do
   ss <- getLines 23
   let g = S.fromList $ parse ss
 
-  putStrLn $ "Day23: part1: " ++ show (score $ keepMoving 10 lookN g)
-  timeIt $ putStrLn $ "Day23: part1: " ++ show (keepMoving2 0 lookN g) 
+  putStrLn $ "Day23: part1: " ++ show (score $ keepMoving 10 N g)  --3923
+  timeIt $ putStrLn $ "Day23: part1: " ++ show (keepMoving2 0 N g) --1019
 
   return ()

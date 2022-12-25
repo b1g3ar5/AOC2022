@@ -226,7 +226,8 @@ neighbourCoords6 = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]
 
 
 neighbourCoords8 :: [Coord]
-neighbourCoords8 = [(x, y) | x <- [-1, 0, 1], y <- [-1, 0, 1], (x, y) /= (0, 0)]
+--neighbourCoords8 = [(x, y) | x <- [-1, 0, 1], y <- [-1, 0, 1], (x, y) /= (0, 0)]
+neighbourCoords8 = [(-1, -1),(0, -1),(1, -1), (1, 0),(1, 1),(0, 1),(-1, 1),(-1, 0)]
 
 
 neighbours4 :: Coord -> [Coord]

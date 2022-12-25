@@ -1,39 +1,55 @@
+{-# OPTIONS_GHC -Wno-orphans #-}
 module Day25(day25) where
 
---import qualified Data.Set as S
---import qualified Data.Vector as V
---import qualified Data.Map.Strict as M
---import qualified Data.IntMap.Strict as IM
---import Data.Sequence (Seq(..), (><), (|>), (<|))
---import Data.List ( foldl', transpose, (\\), delete, group, intercalate, intersect, nub, sort, sortOn )
---import Data.List.Split (chunksOf, splitOn)
---import Data.List.Utils (replace)
---import Data.Bifunctor (Bifunctor(bimap, first, second))
---import Data.Tuple (swap)
---import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
---import Data.Char (isAsciiLower, isAsciiUpper, toLower, toUpper, ord)
---import Control.Monad (guard)
---import Control.Monad.ST (runST, ST(..))
---import System.TimeIt ( timeIt )
---import Data.Semigroup (Semigroup(..))
---import Data.Monoid (Monoid(..))
---import Debug.Trace (trace)
---import Data.Bool (bool)
---import Data.Ord
---import Data.Function
-import Utils
+import Utils ( getLines )
 
 
-parse :: String -> Int
-parse = read
+type Snafu = String
+
+
+toS :: Int -> Char
+toS (-2) = '='
+toS (-1) = '-'
+toS 0 = '0'
+toS 1 = '1'
+toS 2 = '2'
+toS i = error $ "Error can't translate toS: " ++ show i
+
+fromS :: Char -> Int
+fromS '=' = -2
+fromS '-' = -1
+fromS '0' = 0
+fromS '1' = 1
+fromS '2' = 2
+fromS c = error $ "Error can't translate fromS: " ++ [c]
+
+
+fromSnafu :: Snafu -> Int
+fromSnafu xs = go 1 0 $ reverse $ fromS <$> xs
+  where
+    go :: Int -> Int -> [Int] -> Int
+    go _ acc [] = acc
+    go base acc (d:ds) = go (base*5) (acc + d*base) ds
+
+
+-- Change quotRem so that the rem is in [-2..2]
+toSnafu :: Int -> Snafu
+toSnafu = reverse . go []
+  where  
+    go :: String -> Int -> String
+    go acc n
+      | q == 0 = acc ++ [toS r']
+      | otherwise = go (acc ++ [toS r']) q
+      where
+        (q,r) = (n+2) `quotRem` 5
+        r' = r-2
 
 
 day25 :: IO ()
 day25 = do
   ss <- getLines 25
-  let g = parse <$> ss
+  let g = ss
 
-  putStrLn $ "Day25: part1: " ++ show g
-  putStrLn $ "Day25: part2: " ++ show ""
+  putStrLn $ "Day25: part1: " ++ show (toSnafu $ sum $ fromSnafu <$> g)
 
   return ()

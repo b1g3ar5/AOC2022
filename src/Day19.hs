@@ -1,11 +1,26 @@
 module Day19(day19) where
 
-import Utils
+import Utils hiding (bfs)
 import Data.Map.Strict (Map, (!))
 import qualified Data.Map.Strict as M
-import Data.Functor.Base
+import Data.Functor.Base hiding (head)
 import Data.Functor.Foldable
+import qualified Data.Set as S
 
+
+{-
+
+I should go back and slove this with a bfs it would be a lot quicker
+as it has much less duplication when you have a good SEEN set and
+a good representation of the state.
+
+I can't see how to sort out the duplication in the tree used in the hylomorphism.
+
+The problem is the branches of the tree don't know what each other are doing.TQNil
+
+Maybe I could use a list instead?
+
+-}
 
 data Product = ORE | CLAY | OBSIDIAN | GEODE deriving (Eq, Show, Ord)
 
@@ -17,22 +32,29 @@ data Blueprint = Blueprint {  oreCost::Int
                             , geodeCostObsidian::Int} deriving (Show, Eq, Ord)
 
 
-parse :: String -> Blueprint
-parse s = Blueprint (read $ ws!!6) (read $ ws!!12) (read $ ws!!18) (read $ ws!!21) (read $ ws!!27) (read $ ws!!30)
-  where
-    ws = words s
-
-
 data State = State { ix :: Int
                    , blueprint :: Blueprint -- How much robots cost
                    , t :: Int
                    , stock :: Map Product Int -- Stock we have
                    , robots :: Map Product Int -- Robots we have
                    , allowedActions :: Map Product Bool
-                   } deriving (Eq, Ord)
+                   } deriving (Eq)
+
+instance Ord State where
+  s1 <= s2 = t s1 <= t s2
+
+rep :: State -> (Int, [Int], [Int])
+rep s = (t s, M.elems $ robots s, M.elems $ stock s)
+
 
 instance Show State where
   show (State ix _ t s r _) = "\n" ++ show ix ++ ", " ++ show t ++ "\nStock: " ++ show (M.toList s) ++ "\nRobots: " ++ show (M.toList r)
+
+
+parse :: String -> Blueprint
+parse s = Blueprint (read $ ws!!6) (read $ ws!!12) (read $ ws!!18) (read $ ws!!21) (read $ ws!!27) (read $ ws!!30)
+  where
+    ws = words s
 
 
 solve1 :: State -> Int
@@ -128,7 +150,7 @@ day19 = do
       g32 = take 3 $ (\(ix, s) -> makeState ix 32 $ parse s )<$> zip [0..] ss
    
   timeIt $ putStrLn $ "Day19: part1:solve " ++ show (sum $ solve1 <$> g24) -- 1613
-  timeIt $ putStrLn $ "Day19: part1:solve " ++ show (product $ solve2 <$> g32) --46816
+  timeIt $ putStrLn $ "Day19: part2:solve " ++ show (solve2 <$> g32) --46816
 
   return ()
 
