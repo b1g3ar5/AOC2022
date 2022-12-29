@@ -51,6 +51,7 @@ library
       Day8
       Day8a
       Day9
+      DFS
       Enumeration
       HeapIndexed
       Lib
@@ -69,9 +70,11 @@ library
     , array
     , base >=4.7 && <5
     , containers
+    , data-fix
     , hashable
     , mtl
     , parallel
+    , recursion
     , recursion-schemes
     , search-algorithms
     , split
@@ -95,9 +98,11 @@ executable AOC2022-exe
     , array
     , base >=4.7 && <5
     , containers
+    , data-fix
     , hashable
     , mtl
     , parallel
+    , recursion
     , recursion-schemes
     , search-algorithms
     , split
@@ -122,9 +127,11 @@ test-suite AOC2022-test
     , array
     , base >=4.7 && <5
     , containers
+    , data-fix
     , hashable
     , mtl
     , parallel
+    , recursion
     , recursion-schemes
     , search-algorithms
     , split

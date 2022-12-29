@@ -60,7 +60,7 @@ day20 = do
 
 
   putStrLn $ "Day20: part1: " ++ show (grove 1 1 p)
-  timeIt $ putStrLn $ "Day20: part2: " ++ show (grove 10 code p)
+  putStrLn $ "Day20: part2: " ++ show (grove 10 code p)
 
   return ()
 

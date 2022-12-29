@@ -55,6 +55,7 @@ module Utils (
   , comparing
   , levi
   , crossProduct
+  , traverse_
 ) where
 
 import Data.Char
